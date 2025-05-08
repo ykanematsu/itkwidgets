@@ -74,17 +74,17 @@ class ViewerRPC:
                 self.viewer_event = threading.Event()
                 self.data_event = threading.Event()
 
-    async def setup(self) -> None:
+    def setup(self) -> None:
         pass
 
-    async def run(self, ctx: dict) -> None:
+    def run(self, ctx: dict) -> None:
         """ImJoy plugin setup function."""
         global _viewer_count, _cell_watcher
         ui = self._init_viewer_kwargs.get("ui", None)
         config = build_config(ui)
 
         if ENVIRONMENT is not Env.HYPHA:
-            itk_viewer = await api.createWindow(
+            itk_viewer = api.createWindow(
                 name=f"itkwidgets viewer {_viewer_count}",
                 type="itk-vtk-viewer",
                 src=ITK_VIEWER_SRC,
@@ -101,7 +101,7 @@ class ViewerRPC:
 
             if ENVIRONMENT is not Env.JUPYTERLITE:
                 # Create the initial screenshot
-                await self.create_screenshot()
+                self.create_screenshot()
                 itk_viewer.registerEventListener(
                     'renderedImageAssigned', self.set_event
                 )
@@ -111,8 +111,8 @@ class ViewerRPC:
                 asyncio.get_running_loop().call_soon_threadsafe(self.viewer_event.set)
 
             # Wait and then update the screenshot in case rendered level changed
-            await asyncio.sleep(10)
-            await self.create_screenshot()
+            asyncio.sleep(10)
+            self.create_screenshot()
             # Set up an event listener so that the embedded
             # screenshot is updated when the user requests
             itk_viewer.registerEventListener('screenshotTaken', self.update_screenshot)
